@@ -1,0 +1,20 @@
+{
+  "name": "whatsapp-telegram-api",
+  "version": "0.0.1",
+  "description": "A NodeJS API wrapper for whatsapp-web.js and gram.js",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "qrcode-terminal": "^0.12.0",
+    "request": "^2.88.2",
+    "whatsapp-web.js": "^1.17.1"
+  }
+}
