@@ -1,5 +1,7 @@
 const qrcode = require('qrcode-terminal');
 
+const fetch_api = require('./laravel-communicator')
+
 const express = require('express');
 const app = express();
 const cors = require('cors')
@@ -7,11 +9,14 @@ const bodyParser = require("body-parser");
 const axios = require('axios');
 var qs = require('qs');
 const { Client, LocalAuth } = require('whatsapp-web.js');
-app.options('*', cors())
+
+console.log(fetch_api.api('l', 5, ''))
+
 require('dotenv').config()
 
-// console.log(process.env.WHATSAPP_QR_API_END)
-// Use the saved values
+app.options('*', cors())
+app.use(cors())
+
 const client = new Client({
     authStrategy: new LocalAuth({ clientId: "client-one" })
 });
@@ -48,7 +53,6 @@ client.on('ready', () => {
 client.on('disconnected', (reason) => {
     console.log("Logged out");
 });
-// client.logout()
 
 client.on('message', message => {
 	if(message.body === '!ping') {
