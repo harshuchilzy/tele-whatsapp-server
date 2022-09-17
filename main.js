@@ -1,88 +1,52 @@
-const qrcode = require('qrcode-terminal');
 
-const fetch_api = require('./laravel-communicator')
+const { callToApi } = require('./communicator');
+const telegram = require('./telegram');
+const whatsapp = require('./whatsapp')
 
 const express = require('express');
 const app = express();
 const cors = require('cors')
 const bodyParser = require("body-parser");
-const axios = require('axios');
-var qs = require('qs');
-const { Client, LocalAuth } = require('whatsapp-web.js');
-
-console.log(fetch_api.api('l', 5, ''))
-
 require('dotenv').config()
+
+// Call to API
+// callToApi('post', '', 'test10000').then(res => {
+//     console.log(res.data);
+// })
+// .catch(err => console.log(err.response))
+
+
+// initialize Telegram
+telegram.telegram()
+// initialize Whatsapp
+whatsapp.init()
 
 app.options('*', cors())
 app.use(cors())
-
-const client = new Client({
-    authStrategy: new LocalAuth({ clientId: "client-one" })
-});
-
-client.on('qr', qr => {
-    console.log(qr)
-    var data = qs.stringify({
-        'qr': qr 
-    });
-    var config = {
-        method: 'post',
-        url: process.env.WHATSAPP_QR_API_END,
-        headers: { 
-          'Authorization': 'Bearer ' + process.env.LARAVEL_API_TOKEN, 
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data : data
-    };
-      
-    axios(config).then(function (response) {
-        console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
-    // qrcode.generate(qr, {small: true});
-});
-
-client.on('ready', () => {
-    console.log('Client is ready!');
-    // client.logout()
-});
-
-client.on('disconnected', (reason) => {
-    console.log("Logged out");
-});
-
-client.on('message', message => {
-	if(message.body === '!ping') {
-		message.reply('pong');
-	}
-});
-
-client.initialize();
-
-async function sendWhatsappMsg(number, message){
-    const sanitized_number = number.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
-    const final_number = `94${sanitized_number.substring(sanitized_number.length - 10)}`;
-
-    const number_details = await client.getNumberId(final_number); // get mobile number details
-
-    if (number_details) {
-        const sendMessageData = await client.sendMessage(number_details._serialized, message); // send message
-    } else {
-        console.log(final_number, "Mobile number is not registered");
-    }
-}
 
 // App
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.get('/client-status', async (req, res) => {
+    let status = await client.getState();
+    console.log(status);
+    res.end(JSON.stringify(status));
+} )
+
 app.post('/forward-msg', (req, res) => {
-    sendWhatsappMsg(req.body.to, req.body.message)
+    whatsapp.sendWhatsappMsg(req.body.to, req.body.message)
     res.end('success');
 });
+
+app.get('/restart', (req, res) => {
+    // initialize Telegram
+    telegram.telegram()
+    // initialize Whatsapp
+    whatsapp.init()
+    res.end('restarted')
+})
+
 app.listen(process.env.PORT, () => {
     console.log('listening on port ' + process.env.PORT);
 });

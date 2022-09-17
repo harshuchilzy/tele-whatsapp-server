@@ -13,8 +13,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
+    "input": "^1.0.1",
     "qrcode-terminal": "^0.12.0",
-    "request": "^2.88.2",
+    "telegram": "^2.11.5",
     "whatsapp-web.js": "^1.17.1"
   }
 }
