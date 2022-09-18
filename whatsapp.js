@@ -19,9 +19,12 @@ client.on('qr', qr => {
         'qr': qr,
     });
 
-    // callToApi('post', process.env.CLIENT_URL + '/whatsapp-webhook' , data).then(res => {
-    //     console.log(res.data);
-    // }).catch(err => console.log(err.response))
+    callToApi('post', '/api/whatsapp-webhook' , qs.stringify({
+        type: 'qr',
+        content: qr
+    })).then(res => {
+        console.log(res.data);
+    }).catch(err => console.log(err.response))
 });
 
 client.on('ready', () => {
@@ -50,6 +53,14 @@ function init(){
     }
 }
 
+async function getStatus(){
+    let status = await client.getState();
+    if(status == null){
+        return 'check-for-qr'
+    }
+    return status;
+}
+
 async function sendWhatsappMsg(number, message){
     const sanitized_number = number.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
     const final_number = `${sanitized_number.substring(sanitized_number.length - 9)}`;
@@ -64,4 +75,4 @@ async function sendWhatsappMsg(number, message){
     }
 }
 
-module.exports = { init, sendWhatsappMsg }
+module.exports = { init, getStatus, sendWhatsappMsg }

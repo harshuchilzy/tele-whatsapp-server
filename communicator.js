@@ -1,7 +1,7 @@
 const { default: axios } = require('axios');
 
 require('dotenv').config()
-async function callToApi(method, route, data){
+function callToApi(method, route, data){
     
     var config = {
         method: method,

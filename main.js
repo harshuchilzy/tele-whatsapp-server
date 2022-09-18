@@ -28,10 +28,16 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/client-status', async (req, res) => {
-    let status = await client.getState();
-    console.log(status);
-    res.end(JSON.stringify(status));
+app.get('/whatsapp/status', async (req, res) => {
+    let status = await whatsapp.getStatus();
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({status: status}));
+} )
+
+app.get('/telegram/status', async (req, res) => {
+    let status = await telegram.getStatus();
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({status: status}));
 } )
 
 app.post('/forward-msg', (req, res) => {

@@ -1,7 +1,8 @@
-const { TelegramClient } = require("telegram");
+const { TelegramClient, Api } = require("telegram");
 const { StoreSession } = require("telegram/sessions");
 const input = require("input"); // npm i input
 const { callToApi } = require('./communicator');
+var qs = require('qs');
 
 const apiId = 19672483;
 const apiHash = "b0174da910bcd41bd76bb4633ad2dbf5";
@@ -12,55 +13,77 @@ const client = new TelegramClient(storeSession, apiId, apiHash, {
 });
 
 async function telegram() {
-    console.log("Loading interactive example...");
+    console.log("Loading interactive connection...");
 
-    await client.start({
-        phoneNumber: async () => await input.text("Please enter your number: "),
-        password: async () => await input.text("Please enter your password: "),
-        phoneCode: async () =>
-            await input.text("Please enter the code you received: "),
-        onError: (err) => console.log(err)
-    });
+    // await client.start({
+    //     phoneNumber: async () => waitTillResponse('phone-number'),
+    //     password: async () => await input.text("Please enter your password: "),
+    //     phoneCode: async () => await input.text("Please enter the code you received: "),
+    //     onError: (err) => console.log(err)
+    // });
+    await client.connect();
+
+    let status = await client.checkAuthorization();
+    console.log(status)
+    if (status == false) {
+
+        await client.signInUserWithQrCode({ apiId, apiHash }, {
+            onError: async function (err) {
+                console.log(err)
+            },
+            qrCode: async (code) => {
+                // callToApi('post', '/api/telegram-webhook', qs.stringify({
+                //     type: 'qr',
+                //     qr: code.token.toString('base64url')
+                // }));
+                console.log(code.token.toString('base64url'));
+                return false;
+            },
+            password: async (hint) => {
+                return "1111";
+            }
+        })
+    }
     console.log("You should now be connected.");
-    
-    // Send Authentication to the System
-    // callToApi('post', '/telegram-webhook', {
-    //     type: 'status',
-    //     content: 'success'
-    // }).then(res => {
-    //     console.log(res.data);
-    // })
-    // .catch(err => console.log(err.response));
-    
+    callToApi('post', '/api/telegram-webhook', qs.stringify({ type: 'telegram-logged-in' }));
     await client.sendMessage("me", { message: "Connected to the system." });
 
     // New Message Listener
     client.addEventHandler(eventPrint, new TelegramClient.events.NewMessage({}));
 };
 
+async function getStatus() {
+    let status = await client.checkAuthorization();
+    if (status) {
+        return 'connected'
+    } else {
+        return 'not connected'
+    }
+}
+
 async function eventPrint(event) {
     console.log('incoming message')
-    
+
     const message = event.message;
 
     if (event.isPrivate) {
         const sender = await message.getSender();
-        // await callToApi('post', '/telegram-webhook', {
-        //     type: 'incoming-telegram',
-        //     content: {
-        //         id: message.id,
-        //         senderId: sender.senderId
-        //         firstName: sender.firstName,
-        //         lastName: sender.lastName,
-        //         username: sender.username,
-        //         phone: sender.phone,
-        //         text: message.text
-        //     }
-        // }).then(res => console.log(res)).catch(err => console.log(err))
-        console.log(sender);
-        await client.sendMessage(sender, {
-            message: `hi your id is ${message.senderId} and ${sender.firstName} ${sender.lastName}`
-        });
+        let forwardTelegram = await callToApi('post', '/api/telegram-webhook', qs.stringify({
+            type: 'incoming-telegram',
+            content: {
+                id: message.id,
+                senderId: sender.senderId,
+                firstName: sender.firstName,
+                lastName: sender.lastName,
+                username: sender.username,
+                phone: sender.phone,
+                text: message.text
+            }
+        })).then(res => console.log(res)).catch(err => console.log(err))
+        console.log(forwardTelegram);
+        // await client.sendMessage(sender, {
+        //     message: `hi your id is ${message.senderId} and ${sender.firstName} ${sender.lastName}`
+        // });
     }
 }
-module.exports = { telegram }
+module.exports = { telegram, getStatus }
