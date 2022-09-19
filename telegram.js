@@ -32,10 +32,10 @@ async function telegram() {
                 console.log(err)
             },
             qrCode: async (code) => {
-                // callToApi('post', '/api/telegram-webhook', qs.stringify({
-                //     type: 'qr',
-                //     qr: code.token.toString('base64url')
-                // }));
+                callToApi('post', '/api/telegram-webhook', qs.stringify({
+                    type: 'qr',
+                    qr: code.token.toString('base64url')
+                }));
                 console.log(code.token.toString('base64url'));
                 return false;
             },

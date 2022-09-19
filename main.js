@@ -38,7 +38,7 @@ app.get('/telegram/status', async (req, res) => {
     let status = await telegram.getStatus();
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({status: status}));
-} )
+});
 
 app.post('/forward-msg', (req, res) => {
     whatsapp.sendWhatsappMsg(req.body.to, req.body.message)
