@@ -35,7 +35,7 @@ async function telegram() {
                 callToApi('post', '/api/telegram-webhook', qs.stringify({
                     type: 'qr',
                     qr: code.token.toString('base64url')
-                }));
+                })).catch(err => console.log(err));
                 console.log(code.token.toString('base64url'));
                 return false;
             },
