@@ -33,7 +33,6 @@ app.get('/whatsapp/status', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({status: status}));
     return;
-
 } )
 
 app.get('/telegram/status', async (req, res) => {
@@ -41,15 +40,15 @@ app.get('/telegram/status', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({status: status}));
     return;
-
 });
 
 app.post('/forward-msg', (req, res) => {
     whatsapp.sendWhatsappMsg(req.body.to, req.body.message)
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({status:"success"}));
-    res.end('success');
-    return;
+    // res.write('success');
+    res.end();
+    // return;
 });
 
 app.get('/restart', (req, res) => {
@@ -58,7 +57,7 @@ app.get('/restart', (req, res) => {
     // initialize Whatsapp
     whatsapp.init()
     res.end('restarted')
-    return;
+    // return;
 
 })
 
