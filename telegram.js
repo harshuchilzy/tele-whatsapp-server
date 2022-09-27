@@ -63,12 +63,14 @@ async function getStatus() {
 
 async function eventPrint(event) {
     const message = event.message;
+
     // console.log(event.message.out)
     if (event.message.out == false) {
         console.log('incoming message')
         console.log(event.message)
 
         const sender = await message.getSender();
+        console.log(sender)
         let forwardTelegram = await callToApi('post', '/api/telegram-webhook', qs.stringify({
             type: 'incoming-telegram',
             content: {
@@ -77,10 +79,10 @@ async function eventPrint(event) {
                 firstName: sender.firstName,
                 lastName: sender.lastName,
                 username: sender.username,
-                phone: sender.phone,
+                phone: (sender.phone !== undefined) ? sender.phone : sender.username,
                 text: message.text
             }
-        })).then(res => console.log(res)).catch(err => console.log(err))
+        })).then(res => console.log('OK')).catch(err => console.log(err))
         // console.log(forwardTelegram);
     }
 }
