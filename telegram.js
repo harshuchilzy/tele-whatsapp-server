@@ -62,11 +62,12 @@ async function getStatus() {
 }
 
 async function eventPrint(event) {
-    console.log('incoming message')
-
     const message = event.message;
+    // console.log(event.message.out)
+    if (event.message.out == false) {
+        console.log('incoming message')
+        console.log(event.message)
 
-    if (event.isPrivate) {
         const sender = await message.getSender();
         let forwardTelegram = await callToApi('post', '/api/telegram-webhook', qs.stringify({
             type: 'incoming-telegram',
@@ -80,10 +81,7 @@ async function eventPrint(event) {
                 text: message.text
             }
         })).then(res => console.log(res)).catch(err => console.log(err))
-        console.log(forwardTelegram);
-        // await client.sendMessage(sender, {
-        //     message: `hi your id is ${message.senderId} and ${sender.firstName} ${sender.lastName}`
-        // });
+        // console.log(forwardTelegram);
     }
 }
 module.exports = { telegram, getStatus }

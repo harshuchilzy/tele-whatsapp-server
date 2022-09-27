@@ -42,13 +42,11 @@ app.get('/telegram/status', async (req, res) => {
     return;
 });
 
-app.post('/forward-msg', (req, res) => {
-    whatsapp.sendWhatsappMsg(req.body.to, req.body.message)
+app.post('/forward-msg', async (req, res) => {
+    let response = await whatsapp.sendWhatsappMsg(req.body.to, req.body.message)
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({status:"success"}));
-    // res.write('success');
-    res.end();
-    // return;
+    res.end(JSON.stringify(response));
+    // res.end();
 });
 
 app.get('/restart', (req, res) => {

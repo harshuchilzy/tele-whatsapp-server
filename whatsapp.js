@@ -63,15 +63,19 @@ async function getStatus(){
 
 async function sendWhatsappMsg(number, message){
     const sanitized_number = number.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
-    const final_number = `${sanitized_number.substring(sanitized_number.length - 9)}`;
+    const final_number = `${sanitized_number.substring(sanitized_number.length - 11)}`;
 
     const number_details = await client.getNumberId(final_number); // get mobile number details
 
     if (number_details) {
         const sendMessageData = await client.sendMessage(number_details._serialized, message); // send message
-        console.log(sendMessageData._data)
+        if(sendMessageData._data){
+            return 'Message sent';
+        }else{
+            return 'Message failed';
+        }
     } else {
-        console.log(final_number, "Mobile number is not registered");
+        return final_number, "Mobile number is not registered";
     }
 }
 
